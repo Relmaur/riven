@@ -1,0 +1,17 @@
+{
+    "name": "marcodelriego/ml-cms",
+    "description": "A PHP usecase: CMS",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Core\\": "core/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Relmaur",
+            "email": "marck94zac1@gmail.com"
+        }
+    ],
+    "require": {}
+}
