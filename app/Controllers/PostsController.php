@@ -2,14 +2,16 @@
 
 namespace App\Controllers;
 
+use App\Controllers\BaseController;
 use App\Models\Post;
 
-class PostsController
+class PostsController extends BaseController
 {
     private $postModel;
 
     public function __construct()
     {
+        parent::__construct();
         $this->postModel = new Post();
     }
 
@@ -41,10 +43,17 @@ class PostsController
     }
 
     /**
+     * MARK: Protected Routes start here
+     */
+
+    /**
      * Show the form for creating a new post.
      */
     public function create()
     {
+        // Middleware-like check that the BaseController class provides
+        $this->requireAuth();
+
         $pageTitle = 'Create New Post';
         require_once '../app/Views/posts/create.php';
     }
@@ -54,6 +63,10 @@ class PostsController
      */
     public function store()
     {
+
+        // Middleware-like check that the BaseController class provides
+        $this->requireAuth();
+
         // Basic validation
         if (isset($_POST['title']) && isset($_POST['body']) && !empty($_POST['title']) && !empty($_POST['body'])) {
             $data = [
@@ -86,6 +99,10 @@ class PostsController
      */
     public function edit($id)
     {
+
+        // Middleware-like check that the BaseController class provides
+        $this->requireAuth();
+
         $post = $this->postModel->getPostById($id);
 
         // IN a production app, you'd check if the user is authorized to edit this post.
@@ -104,6 +121,10 @@ class PostsController
      */
     public function update($id)
     {
+
+        // Middleware-like check that the BaseController class provides
+        $this->requireAuth();
+
         // Basic validation TODO: Strengthen this
         if (isset($_POST['title']) && isset($_POST['body']) && !empty($_POST['title']) && !empty($_POST['body'])) {
             $data = [
@@ -135,7 +156,9 @@ class PostsController
      */
     public function destroy($id)
     {
-        // TODO: Checl for authorization
+
+        // Middleware-like check that the BaseController class provides
+        $this->requireAuth();
 
         if ($this->postModel->deletePost($id)) {
             // Redirect to the blog index on success

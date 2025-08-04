@@ -44,4 +44,9 @@ class Session
         session_unset();
         session_destroy();
     }
+
+    public static function isAuthenticated()
+    {
+        return self::has('user_id');
+    }
 }

@@ -74,6 +74,10 @@ class UsersController
             Session::set('user_id', $user->id);
             Session::set('user_name', $user->name);
 
+            Session::set('redirect_email', $user->email);
+            Session::set('redirect_name', $user->name);
+            Session::set('redirect_message', 'Welcome back!');
+
             // Redirect to homepage or dashboard
             header('Location: /');
             exit();
