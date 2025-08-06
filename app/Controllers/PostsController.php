@@ -90,6 +90,8 @@ class PostsController extends BaseController
             $data['content'] = htmlspecialchars($data['content'], ENT_QUOTES, 'UTF-8');
 
             if ($this->postModel->createPost($data)) {
+
+                Session::flash('success', 'Post created successfully!');
                 // Redirect to the blog index on success
                 header('Location: /posts/index');
                 exit();
@@ -98,6 +100,8 @@ class PostsController extends BaseController
                 die('Something went wrong.');
             }
         } else {
+
+            Session::flash('error', 'There was an error creating the post');
             // If validation fails, redirect back to create form
             // In a prod environment, you'd show an error message.
             header('Location: /posts/create');
@@ -154,6 +158,8 @@ class PostsController extends BaseController
             $data['content'] = htmlspecialchars($data['content'], ENT_QUOTES, 'UTF-8');
 
             if ($this->postModel->updatePost($data)) {
+
+                Session::flash('success', 'Post updated successfully');
                 // Redirect to the post's page on success
                 header('Location: /posts/show/' . $id);
                 exit();
@@ -177,6 +183,8 @@ class PostsController extends BaseController
         $this->requireAuth();
 
         if ($this->postModel->deletePost($id)) {
+
+            Session::flash('success', 'Post deleted successfully');
             // Redirect to the blog index on success
             header('Location: /posts/index');
             exit();

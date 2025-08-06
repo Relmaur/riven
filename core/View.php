@@ -9,9 +9,10 @@ class View
      * 
      * @param string $view The view file to render (e.g., 'posts/index')
      * @param array $args The data to pass to the View
+     * @param string $layout The specified layout file (under app/Views/layouts)
      */
 
-    public static function render($view, $args = [])
+    public static function render($view, $args = [], $layout = "main")
     {
         // Make variables available to the view
         extract($args, EXTR_SKIP);
@@ -29,7 +30,7 @@ class View
             $content = ob_get_clean();
 
             // Require the main layout, which will use the $content variable
-            require_once __DIR__ . "/../app/Views/layouts/main.php";
+            require_once __DIR__ . "/../app/Views/layouts/" . $layout . ".php";
         } else {
             die("View not found: " . $file);
         }

@@ -49,4 +49,35 @@ class Session
     {
         return self::has('user_id');
     }
+
+    /**
+     * Set a flash message that will be available for the next request.
+     * 
+     * @param string $key The key for the flash message
+     * @param string $message The message to display
+     */
+
+    public static function flash($key, $message)
+    {
+        self::set('flash_' . $key, $message);
+    }
+
+    /**
+     * Check if a flash message exists, and return it.
+     * Also, unsets it so it's only shown once
+     * 
+     * @param string $key The key for the message
+     * @return string|null The message or null if not found
+     */
+
+    public static function getFlash($key)
+    {
+        $message = self::get('flash_' . $key);
+
+        if ($message) {
+            self::remove('flash_' . $key);
+        }
+
+        return $message;
+    }
 }

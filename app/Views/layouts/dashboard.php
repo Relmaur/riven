@@ -28,7 +28,7 @@
             margin-bottom: 20px;
             border: 1px solid transparent;
             border-radius: 4px;
-            
+
             /* position: relative;
             animation-name: fade-left;
             animation-delay: 3s;
@@ -109,13 +109,15 @@
 
     <?php endif; ?>
 
-    <?php require_once '../app/Views/partials/header.php'; ?>
+    <?php // require_once '../app/Views/partials/header.php'; 
+    ?>
 
     <main>
         <?php echo $content; ?>
     </main>
 
-    <?php require_once '../app/Views/partials/footer.php'; ?>
+    <?php // require_once '../app/Views/partials/footer.php'; 
+    ?>
 
 </body>
 

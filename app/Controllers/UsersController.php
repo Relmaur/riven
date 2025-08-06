@@ -2,10 +2,12 @@
 
 namespace App\Controllers;
 
+use \App\Controllers\BaseController;
 use App\Models\User;
 use Core\Session;
+use Core\View;
 
-class UsersController
+class UsersController extends BaseController
 {
     private $userModel;
 
@@ -19,7 +21,10 @@ class UsersController
     public function register()
     {
         $pageTitle = 'Register';
-        require_once '../app/Views/users/register.php';
+
+        View::render('users/register', [
+            'pageTitle' => $pageTitle
+        ]);
     }
 
     // for form action: /users/store
@@ -45,6 +50,9 @@ class UsersController
         ];
 
         if ($this->userModel->register($data)) {
+
+            Session::flash('sucess', 'Thank you for registering!');
+
             // Redirect to login page aftersuccessful registration
             header('Location: /users/login');
             exit();
@@ -58,7 +66,10 @@ class UsersController
     public function login()
     {
         $pageTitle = 'Login';
-        require_once '../app/Views/users/login.php';
+
+        View::render('users/login', [
+            'pageTitle' => $pageTitle
+        ]);
     }
 
     // for form action: /users/authenticate
@@ -74,12 +85,14 @@ class UsersController
             Session::set('user_id', $user->id);
             Session::set('user_name', $user->name);
 
-            Session::set('redirect_email', $user->email);
-            Session::set('redirect_name', $user->name);
-            Session::set('redirect_message', 'Welcome back!');
+            // Session::set('redirect_email', $user->email);
+            // Session::set('redirect_name', $user->name);
+            // Session::set('redirect_message', 'Welcome back!');
+
+            Session::flash('success', 'Welcome Back, ' . $user->name . '!');
 
             // Redirect to homepage or dashboard
-            header('Location: /');
+            header('Location: /dashboard');
             exit();
         } else {
             die('Invalid credentials');
@@ -95,5 +108,3 @@ class UsersController
         exit();
     }
 }
-
-
