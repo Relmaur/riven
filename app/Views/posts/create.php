@@ -1,5 +1,5 @@
 <h1>Create Post</h1>
-<form action="/posts/store" method="POST">
+<form action="/posts" method="POST">
     <div>
         <label for="title">Title</label>
         <input type="text" id="title" name="title" required>
@@ -11,4 +11,4 @@
     <button type="submit">Save Post</button>
 </form>
 
-<a href="/posts/index">Back to Posts</a>
+<a href="/posts">Back to Posts</a>

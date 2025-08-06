@@ -13,7 +13,9 @@ class PostsController extends BaseController
 
     public function __construct()
     {
+        // To be able to access requireAuth middleware
         parent::__construct();
+
         $this->postModel = new Post();
     }
 
@@ -93,7 +95,7 @@ class PostsController extends BaseController
 
                 Session::flash('success', 'Post created successfully!');
                 // Redirect to the blog index on success
-                header('Location: /posts/index');
+                header('Location: /posts');
                 exit();
             } else {
                 // Handle error
@@ -161,14 +163,14 @@ class PostsController extends BaseController
 
                 Session::flash('success', 'Post updated successfully');
                 // Redirect to the post's page on success
-                header('Location: /posts/show/' . $id);
+                header('Location: /posts/' . $id);
                 exit();
             } else {
                 die('Something went wrong.');
             }
         } else {
             // If validation fails, redirect back to edit form
-            header('Location: /posts/edit/' . $id);
+            header('Location: /posts/' . $id . 'edit/');
             exit();
         }
     }
@@ -186,7 +188,7 @@ class PostsController extends BaseController
 
             Session::flash('success', 'Post deleted successfully');
             // Redirect to the blog index on success
-            header('Location: /posts/index');
+            header('Location: /posts');
             exit();
         } else {
             die('Something went worng.');

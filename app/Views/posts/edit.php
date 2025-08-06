@@ -1,5 +1,5 @@
 <h1>Edit Post</h1>
-<form action="/posts/update/<?php echo $post->id; ?>" method="POST">
+<form action="/posts/<?php echo $post->id; ?>" method="POST">
     <div>
         <label for="title">Title</label>
         <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($post->title); ?>" required>
@@ -10,4 +10,4 @@
     </div>
     <button type="submit">Update Post</button>
 </form>
-<a href="/posts/show/<?php echo $post->id ?>">Cancel</a>
+<a href="/posts/<?php echo $post->id ?>">Cancel</a>

@@ -2,66 +2,52 @@
 
 namespace Core;
 
+use Core\Route;
+use Core\View;
+
 class Router
 {
-    protected $controller = 'App\Controllers\PagesController';
-    protected $method = 'home';
-    protected $params = [];
-
-    public function __construct()
+    public function dispatch()
     {
-        $this->parseUrl();
-        $this->dispatch();
-    }
+        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $method = $_SERVER['REQUEST_METHOD'];
 
-    /**
-     * Parses the URL into controller, method and parameters.
-     */
-    protected function parseUrl()
-    {
-        $url = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+        foreach (Route::getRoutes() as $route) {
 
-        if (!empty($url)) {
-            $url = explode('/', $url);
+            // Convert URI to a regex pattern
+            $pattern = $this->convertRouteToRegex($route['uri']);
 
-            // Set controller
-            if (isset($url[0])) {
+            // Checks if the current request URI matches the pattern and the method is correct
+            if ($route['method'] == $method && preg_match($pattern, $uri, $matches)) {
 
-                $controllerName = 'App\\Controllers\\' . ucfirst($url[0]) . 'Controller';
+                // Remove the full match from the beginning of the array
+                array_shift($matches);
 
-                if (class_exists($controllerName)) {
-                    $this->controller = $controllerName;
-                    unset($url[0]);
+                // Extract action and call it
+                $action = $route['action'];
+                if (is_array($action) && count($action) === 2) {
+                    $controllerName = $action[0];
+                    $methodName = $action[1];
+
+                    if (class_exists($controllerName) && method_exists($controllerName, $methodName)) {
+
+                        $controllerInstance = new $controllerName();
+                        call_user_func_array([$controllerInstance, $methodName], $matches);
+                        return;
+                    }
                 }
             }
-
-            // Set method
-            if (isset($url[1])) {
-                if (method_exists($this->controller, $url[1])) {
-                    $this->method = $url[1];
-                    unset($url[1]);
-                }
-            }
-
-            // Set params
-            $this->params = $url ? array_values($url) : [];
         }
-
-        if(!method_exists($this->controller, $this->method)) {
-            if(method_exists($this->controller, 'index')) {
-                $this->method = 'index';
-            } else {
-                throw new \Exception("Method {$this->method} not found in controller {$this->controller}");
-            }
-        }
+        // Handle 404 Not Found
+        http_response_code(404);
+        View::render('errors/404', ['pageTitle' => 'Not Found']);
     }
 
-    /**
-     * Dispatches the request to the appropriate controller and method.
-     */
-    protected function dispatch()
+    private function convertRouteToRegex($uri)
     {
-        $controllerInstance = new $this->controller;
-        call_user_func_array([$controllerInstance, $this->method], $this->params);
+        // Convert route placeholders like {id} to a regex capture group
+        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $uri);
+        // Escape forward slashes and add start/end anchors
+        return '#^' . str_replace('/', '\/', $pattern) . '\/?$#';
     }
 }

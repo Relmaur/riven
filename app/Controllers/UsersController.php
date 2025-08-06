@@ -104,7 +104,7 @@ class UsersController extends BaseController
     public function logout()
     {
         Session::destroy();
-        header('Location: /users/login');
+        header('Location: /login');
         exit();
     }
 }
