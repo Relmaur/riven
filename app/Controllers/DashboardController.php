@@ -7,7 +7,7 @@ use App\Controllers\BaseController;
 
 class DashboardController extends BaseController
 {
-    public function home()
+    public function index()
     {
         View::render('dashboard/home', [
             'pageTitle' => 'ML CMS | Dashboard'

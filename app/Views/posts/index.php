@@ -17,8 +17,8 @@ use Core\Session; ?>
 
         <?php if (Session::isAuthenticated()): ?>
             <p>
-                <a href="/posts/show/<?php echo $post->id; ?>">Read More</a> |
-                <a href="/posts/edit/<?php echo $post->id; ?>">Edit</a>
+                <a href="/posts/<?php echo $post->id; ?>">Read More</a> |
+                <a href="/posts/<?php echo $post->id; ?>/edit">Edit</a>
             </p>
         <?php endif; ?>
     </article>

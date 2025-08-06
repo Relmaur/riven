@@ -35,7 +35,7 @@
 
 <body>
     <h1>Register an Account</h1>
-    <form action="/users/store" method="POST">
+    <form action="/register" method="POST">
         <div><label for="name">Name</label><input type="text" name="name" required></div>
         <div><label for="email">Email</label><input type="email" name="email" required></div>
         <div><label for="password">Password</label><input type="password" name="password" required></div>
