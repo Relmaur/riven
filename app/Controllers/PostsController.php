@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\Post;
 use Core\Session;
 use Core\View;
+use Core\Cache;
 
 class PostsController extends BaseController
 {
@@ -27,7 +28,18 @@ class PostsController extends BaseController
      */
     public function index()
     {
-        $posts = $this->postModel->getAllPosts();
+        $cacheKey = 'posts.all';
+
+        // Try to get the posts from the cache first
+        $posts = Cache::get($cacheKey);
+
+        if (!$posts) {
+            // If not in cache, get from the database
+            $posts = $this->postModel->getAllPosts();
+
+            // Store the result in the cache for next time (e.g., for 10 minutes)
+            Cache::put($cacheKey, $posts, 10);
+        }
 
         View::render('posts/index', [
             'posts' => $posts,
@@ -41,7 +53,17 @@ class PostsController extends BaseController
 
     public function show($id)
     {
-        $post = $this->postModel->getPostById($id);
+
+        $cacheKey = 'post.' . $id;
+
+        $post = Cache::get($cacheKey);
+
+        
+        if (!$post) {
+            $post = $this->postModel->getPostById($id);
+            Cache::put($cacheKey, $post, 10);
+        }
+        
         $pageTitle = $post ? $post->title : 'Post Not Found';
 
         View::render('posts/show', [
@@ -123,7 +145,7 @@ class PostsController extends BaseController
             $data['content'] = htmlspecialchars($data['content'], ENT_QUOTES, 'UTF-8');
 
             if ($this->postModel->createPost($data)) {
-
+                Cache::forget('posts.all');
                 Session::flash('success', 'Post created successfully!');
                 // Redirect to the blog index on success
                 header('Location: /posts');
@@ -182,7 +204,7 @@ class PostsController extends BaseController
         if (isset($_POST['title']) && isset($_POST['content']) && !empty($_POST['title']) && !empty($_POST['content'])) {
 
             $imagePath = $this->postModel->getPostById($id)->image_path;
-            
+
             // Check if an image was uploaded
             if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
                 $image = $_FILES['image'];
@@ -224,6 +246,8 @@ class PostsController extends BaseController
 
             if ($this->postModel->updatePost($data)) {
 
+                Cache::forget('posts.all');
+                Cache::forget('post.' . $id);
                 Session::flash('success', 'Post updated successfully');
                 // Redirect to the post's page on success
                 header('Location: /posts/' . $id);
@@ -249,6 +273,8 @@ class PostsController extends BaseController
 
         if ($this->postModel->deletePost($id)) {
 
+            Cache::forget('posts.all');
+            Cache::forget('post.' . $id);
             Session::flash('success', 'Post deleted successfully');
             // Redirect to the blog index on success
             header('Location: /posts');
