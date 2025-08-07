@@ -1,45 +1,23 @@
-<!-- app/Views/users/login.php -->
-<!DOCTYPE html>
-<html lang="en">
+<?php
 
-<head>
-    <meta charset="UTF-8">
-    <title><?php echo $pageTitle; ?></title>
-    <style>
-        body {
-            font-family: sans-serif;
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-        }
+use Core\Session;
 
-        label {
-            display: block;
-            margin-top: 20px;
-        }
+$errors = Session::getFlash('errors') ?? [];
+$oldValues = Session::getFlash('old_input') ?? [];
+?>
 
-        input,
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-        }
-
-        button {
-            margin: 20px 0;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-
-<body>
-    <h1>Login</h1>
-    <form action="/login" method="POST">
-        <div><label for="email">Email</label><input type="email" name="email" required></div>
-        <div><label for="password">Password</label><input type="password" name="password" required></div>
-        <button type="submit">Login</button>
-    </form>
-</body>
-
-</html>
+<h1>Login</h1>
+<form action="/login" method="POST">
+    <div>
+        <label for="email">Email</label>
+        <input type="email" name="email" value="<?php echo htmlspecialchars($oldValues['email'] ?? '') ?>" required>
+        <?php if (isset($errors['email'])): ?>
+            <div style="color: red; font-size: 0.9em; margin: 10px 0 0 0;"><?php echo $errors['email']['message']; ?></div>
+        <?php endif; ?>
+    </div>
+    <div>
+        <label for="password">Password</label>
+        <input type="password" name="password" required>
+    </div>
+    <button type="submit">Login</button>
+</form>
