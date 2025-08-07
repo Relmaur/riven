@@ -61,7 +61,7 @@ class UsersController extends BaseController
         if ($this->userModel->register($data)) {
             Session::flash('sucess', 'Thank you for registering!');
             // Redirect to login page aftersuccessful registration
-            header('Location: /users/login');
+            header('Location: /login');
             exit();
         } else {
             die('Something went wrong during registration');

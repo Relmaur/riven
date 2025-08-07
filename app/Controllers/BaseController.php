@@ -19,7 +19,7 @@ abstract class BaseController
     protected function requireAuth()
     {
         if (!Session::isAuthenticated()) {
-            header('Location: /users/login');
+            header('Location: /login');
             exit();
         }
     }
