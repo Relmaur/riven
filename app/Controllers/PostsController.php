@@ -28,18 +28,20 @@ class PostsController extends BaseController
      */
     public function index()
     {
-        $cacheKey = 'posts.all';
+        // $cacheKey = 'posts.all';
 
-        // Try to get the posts from the cache first
-        $posts = Cache::get($cacheKey);
+        // // Try to get the posts from the cache first
+        // $posts = Cache::get($cacheKey);
 
-        if (!$posts) {
-            // If not in cache, get from the database
-            $posts = $this->postModel->getAllPosts();
+        // if (!$posts) {
+        //     // If not in cache, get from the database
+        //     $posts = $this->postModel->getAllPosts();
 
-            // Store the result in the cache for next time (e.g., for 10 minutes)
-            Cache::put($cacheKey, $posts, 10);
-        }
+        //     // Store the result in the cache for next time (e.g., for 10 minutes)
+        //     Cache::put($cacheKey, $posts, 10);
+        // }
+        
+        $posts = $this->postModel->getAllPosts();
 
         $pageTitle = $posts ? 'All Posts' : 'No Posts Found';
 
@@ -147,7 +149,7 @@ class PostsController extends BaseController
             $data['content'] = htmlspecialchars($data['content'], ENT_QUOTES, 'UTF-8');
 
             if ($this->postModel->createPost($data)) {
-                Cache::forget('posts.all');
+                // Cache::forget('posts.all');
                 Session::flash('success', 'Post created successfully!');
                 // Redirect to the blog index on success
                 header('Location: /posts');
@@ -248,8 +250,8 @@ class PostsController extends BaseController
 
             if ($this->postModel->updatePost($data)) {
 
-                Cache::forget('posts.all');
-                Cache::forget('post.' . $id);
+                // Cache::forget('posts.all');
+                // Cache::forget('post.' . $id);
                 Session::flash('success', 'Post updated successfully');
                 // Redirect to the post's page on success
                 header('Location: /posts/' . $id);
@@ -275,8 +277,8 @@ class PostsController extends BaseController
 
         if ($this->postModel->deletePost($id)) {
 
-            Cache::forget('posts.all');
-            Cache::forget('post.' . $id);
+            // Cache::forget('posts.all');
+            // Cache::forget('post.' . $id);
             Session::flash('success', 'Post deleted successfully');
             // Redirect to the blog index on success
             header('Location: /posts');

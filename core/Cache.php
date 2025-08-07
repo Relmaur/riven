@@ -6,6 +6,14 @@ class Cache
 {
     private static $cacheDir = __DIR__ . '/../storage/cache/';
 
+    // If not exists, create the cache directory
+    public function __construct()
+    {
+        if (!is_dir(self::$cacheDir)) {
+            mkdir(self::$cacheDir, 0755, true);61
+        }
+    }
+
     /**
      * Get an item from the cache
      * 
@@ -48,7 +56,9 @@ class Cache
             'data' => $value,
         ];
 
-        file_put_contents($file, serialize($data));
+        if ($file) {
+            file_put_contents($file, serialize($data));
+        }
     }
 
     /**
