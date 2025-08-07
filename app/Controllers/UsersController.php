@@ -6,6 +6,7 @@ use \App\Controllers\BaseController;
 use App\Models\User;
 use Core\Session;
 use Core\View;
+use Core\Validator;
 
 class UsersController extends BaseController
 {
@@ -30,17 +31,25 @@ class UsersController extends BaseController
     // for form action: /users/store
     public function store()
     {
-        // Simple validation
-        if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['password'])) {
-            die('Please fill out all fields.');
-        }
 
-        if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-            die('Invalid email format.');
-        }
+        $validator = new Validator($_POST);
+
+        $validator->validate([
+            'name' => ['required', 'min:3'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'min:8']
+        ]);
 
         if ($this->userModel->findByEmail($_POST['email'])) {
-            die('Email is already taken.');
+            $validator->addError('email', 'This email address is already taken');
+        }
+
+        if ($validator->fails()) {
+            // If validation fails, redirect back with errors
+            Session::flash('errors', $validator->getErrors());
+            Session::flash('old_input', $_POST); // Send back the old input to re-populate the form
+            header('Location: /register');
+            exit();
         }
 
         $data = [
@@ -50,9 +59,7 @@ class UsersController extends BaseController
         ];
 
         if ($this->userModel->register($data)) {
-
             Session::flash('sucess', 'Thank you for registering!');
-
             // Redirect to login page aftersuccessful registration
             header('Location: /users/login');
             exit();
@@ -75,6 +82,20 @@ class UsersController extends BaseController
     // for form action: /users/authenticate
     public function authenticate()
     {
+
+        $validator = new Validator($_POST);
+
+        $validator->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        if ($validator->fails()) {
+            Session::flash('errors', $validator->getErrors());
+            Session::flash('old_input', $_POST);
+            header('Location: /login');
+            exit();
+        }
+
         $email = $_POST['email'];
         $password = $_POST['password'];
 
@@ -85,17 +106,15 @@ class UsersController extends BaseController
             Session::set('user_id', $user->id);
             Session::set('user_name', $user->name);
 
-            // Session::set('redirect_email', $user->email);
-            // Session::set('redirect_name', $user->name);
-            // Session::set('redirect_message', 'Welcome back!');
-
             Session::flash('success', 'Welcome Back, ' . $user->name . '!');
 
             // Redirect to homepage or dashboard
             header('Location: /dashboard');
             exit();
         } else {
-            die('Invalid credentials');
+            Session::flash('error', 'Invalid Credentials');
+            header('Location: /login');
+            exit();
         }
     }
 
