@@ -111,3 +111,5 @@ phpunit.xml
 
 database/database.sqlite
 database/backups
+
+storage
