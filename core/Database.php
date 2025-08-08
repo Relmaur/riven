@@ -13,10 +13,19 @@ class Database
 
     private function __construct()
     {
-        $config = require_once __DIR__ . '/../config/database.php';
 
-        // DSN for SQLite
-        $dsn = "sqlite:" . $config['path'];
+        //Check if we are in the testing environment
+        if (isset($_SERVER['APP_ENV']) && $_SERVER['APP_ENV'] === 'testing') {
+            // Use an in-memory SQLite database for tests
+            $dsn = "sqlite::memory:";
+        } else {
+
+            // Use the regular file-based database for development
+            $config = require __DIR__ . '/../config/database.php';
+            
+            // DSN for SQLite
+            $dsn = "sqlite:" . $config['path'];
+        }
 
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -89,12 +98,12 @@ class Database
                     break;
                 default:
                     $type = PDO::PARAM_STR;
-                }
             }
-            
+        }
+
         // Bind value to the statement
         $this->stmt->bindValue($param, $value, $type);
-        
+
         // Returnthe database after the value bindings
         return $this;
     }

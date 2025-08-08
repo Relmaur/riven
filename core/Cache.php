@@ -6,6 +6,14 @@ class Cache
 {
     private static $cacheDir = __DIR__ . '/../storage/cache/';
 
+    // If not exists, create the cache directory
+    public function __construct()
+    {
+        if (!is_dir(self::$cacheDir)) {
+            mkdir(self::$cacheDir, 0755, true);
+        }
+    }
+
     /**
      * Get an item from the cache
      * 
