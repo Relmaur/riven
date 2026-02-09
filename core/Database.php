@@ -22,7 +22,7 @@ class Database
 
             // Use the regular file-based database for development
             $config = require __DIR__ . '/../config/database.php';
-            
+
             // DSN for SQLite
             $dsn = "sqlite:" . $config['path'];
         }

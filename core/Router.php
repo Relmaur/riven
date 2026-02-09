@@ -4,20 +4,23 @@ namespace Core;
 
 use Core\Route;
 use Core\View;
+use Core\Http\Request;
 
 class Router
 {
     protected $container;
+    protected $request;
 
-    public function __construct(Container $container)
+    public function __construct(Container $container, Request $request)
     {
         $this->container = $container;
+        $this->request = $request ?? Request::capture();
     }
 
     public function dispatch()
     {
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $method = $_SERVER['REQUEST_METHOD'];
+        $uri = $this->request->path();
+        $method = $this->request->method();
 
         foreach (Route::getRoutes() as $route) {
 
@@ -40,15 +43,20 @@ class Router
 
                         $controllerInstance = $this->container->resolve($controllerName);
 
-                        $response = call_user_func_array([$controllerInstance, $methodName], $matches);
+                        $response = call_user_func_array(
+                            [$controllerInstance, $methodName],
+                            array_merge([$this->request], $matches)
+                        );
                         return $response;
                     }
-                    
+
                     // Handle 404 Not Found
-                    View::render('errors/404', ['pageTitle' => 'Not Found']);
+                    return View::render('errors/404', ['pageTitle' => 'Not Found']);
                 }
             }
         }
+
+        return View::render('errors/404', ['pageTitle' => 'Not Found']);
     }
 
     private function convertRouteToRegex($uri)

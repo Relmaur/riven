@@ -31,8 +31,13 @@ class View
             // Get the content of the buffer
             $content = ob_get_clean();
 
+            // Start output buffering for the layout
+            ob_start();
+
             // Require the main layout, which will use the $content variable
             require_once __DIR__ . "/../app/Views/layouts/" . $layout . ".php";
+
+            // Get the complete layout content
             $layoutContent = ob_get_clean();
 
             return new HtmlResponse($layoutContent);

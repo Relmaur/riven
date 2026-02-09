@@ -9,6 +9,7 @@ use Core\View;
 use Core\Cache;
 use Core\Http\HtmlResponse;
 use Core\Http\RedirectResponse;
+use Core\Http\Request;
 
 class PostsController extends BaseController
 {
@@ -98,20 +99,20 @@ class PostsController extends BaseController
     /**
      * Store a new post in the database
      */
-    public function store()
+    public function store(Request $request)
     {
 
         // Middleware-like check that the BaseController class provides
         $this->requireAuth();
 
         // Basic validation
-        if (isset($_POST['title']) && isset($_POST['content']) && !empty($_POST['title']) && !empty($_POST['content'])) {
+        if ($request->has('title') && $request->has('content') && !empty($request->input('title')) && !empty($request->input('content'))) {
 
             // Image handling
             $imagePath = null;
             // Check if an image was uploaded
-            if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
-                $image = $_FILES['image'];
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
 
                 // File validation
                 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -138,8 +139,8 @@ class PostsController extends BaseController
             }
 
             $data = [
-                'title' => trim($_POST['title']),
-                'content' => trim($_POST['content']),
+                'title' => trim($request->input('title')),
+                'content' => trim($request->input('content')),
                 'author_id' => Session::get('user_id'),
                 'image_path' => $imagePath,
             ];
@@ -193,20 +194,21 @@ class PostsController extends BaseController
     /**
      * Update an existing post in the database.
      */
-    public function update($id)
+    public function update($id, Request $request)
     {
 
         // Middleware-like check that the BaseController class provides
         $this->requireAuth();
 
         // Basic validation TODO: Strengthen this
-        if (isset($_POST['title']) && isset($_POST['content']) && !empty($_POST['title']) && !empty($_POST['content'])) {
+        if ($request->has('title') && $request->has('content') && !empty($request->input('title')) && !empty($request->input('content'))) {
 
             $imagePath = $this->postModel->getPostById($id)->image_path;
 
             // Check if an image was uploaded
-            if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
-                $image = $_FILES['image'];
+            if ($request->hasFile('image') && $request->file('image')) {
+
+                $image = $request->file('image');
 
                 // File validation
                 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -234,8 +236,8 @@ class PostsController extends BaseController
 
             $data = [
                 'id' => $id,
-                'title' => trim($_POST['title']),
-                'content' => trim($_POST['content']),
+                'title' => trim($request->input('title')),
+                'content' => trim($request->input('content')),
                 'image_path' => $imagePath,
             ];
 

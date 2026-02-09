@@ -7,6 +7,7 @@ use Core\View;
 use Core\Validator;
 use Core\EventDispatcher;
 use Core\Http\RedirectResponse;
+use Core\Http\Request;
 
 use App\Controllers\BaseController;
 use App\Models\User;
@@ -36,10 +37,10 @@ class UsersController extends BaseController
     }
 
     // for form action: /users/store
-    public function store()
+    public function store(Request $request)
     {
 
-        $validator = new Validator($_POST);
+        $validator = new Validator($request->all());
 
         $validator->validate([
             'name' => ['required', 'min:3'],
@@ -47,21 +48,21 @@ class UsersController extends BaseController
             'password' => ['required', 'min:8']
         ]);
 
-        if ($this->userModel->findByEmail($_POST['email'])) {
+        if ($this->userModel->findByEmail($request->input('email'))) {
             $validator->addError('email', 'This email address is already taken');
         }
 
         if ($validator->fails()) {
             // If validation fails, redirect back with errors
             Session::flash('errors', $validator->getErrors());
-            Session::flash('old_input', $_POST); // Send back the old input to re-populate the form
+            Session::flash('old_input', $request->all()); // Send back the old input to re-populate the form
             return new RedirectResponse('/register');
         }
 
         $data = [
-            'name' => trim($_POST['name']),
-            'email' => trim($_POST['email']),
-            'password' => password_hash($_POST['password'], PASSWORD_DEFAULT) // Hash the password
+            'name' => trim($request->input('name')),
+            'email' => trim($request->input('email')),
+            'password' => password_hash($request->input('password'), PASSWORD_DEFAULT) // Hash the password
         ];
 
         if ($this->userModel->register($data)) {
@@ -91,10 +92,10 @@ class UsersController extends BaseController
     }
 
     // for form action: /users/authenticate
-    public function authenticate()
+    public function authenticate(Request $request)
     {
 
-        $validator = new Validator($_POST);
+        $validator = new Validator($request->all());
 
         $validator->validate([
             'email' => ['required', 'email'],
@@ -102,12 +103,12 @@ class UsersController extends BaseController
 
         if ($validator->fails()) {
             Session::flash('errors', $validator->getErrors());
-            Session::flash('old_input', $_POST);
+            Session::flash('old_input', $request->all());
             return new RedirectResponse('/login');
         }
 
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+        $email = $request->input('email');
+        $password = $request->input('password');
 
         $user = $this->userModel->findByEmail($email);
 
