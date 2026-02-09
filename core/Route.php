@@ -11,12 +11,12 @@ class Route
 
     public static function get($uri, $action)
     {
-        self::add('GET', $uri, $action);
+        return self::add('GET', $uri, $action);
     }
 
     public static function post($uri, $action)
     {
-        self::add('POST', $uri, $action);
+        return self::add('POST', $uri, $action);
     }
 
     /**

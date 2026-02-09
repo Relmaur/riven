@@ -87,7 +87,7 @@ class PostsController extends BaseController
     public function create()
     {
         // Middleware-like check that the BaseController class provides
-        $this->requireAuth();
+        // $this->requireAuth();
 
         $pageTitle = 'Create New Post';
 
@@ -103,7 +103,7 @@ class PostsController extends BaseController
     {
 
         // Middleware-like check that the BaseController class provides
-        $this->requireAuth();
+        // $this->requireAuth();
 
         // Basic validation
         if ($request->has('title') && $request->has('content') && !empty($request->input('title')) && !empty($request->input('content'))) {
@@ -171,7 +171,7 @@ class PostsController extends BaseController
     {
 
         // Middleware-like check that the BaseController class provides
-        $this->requireAuth();
+        // $this->requireAuth();
 
         $post = $this->postModel->getPostById($id);
 
@@ -198,7 +198,7 @@ class PostsController extends BaseController
     {
 
         // Middleware-like check that the BaseController class provides
-        $this->requireAuth();
+        // $this->requireAuth();
 
         // Basic validation TODO: Strengthen this
         if ($request->has('title') && $request->has('content') && !empty($request->input('title')) && !empty($request->input('content'))) {
@@ -266,7 +266,7 @@ class PostsController extends BaseController
     {
 
         // Middleware-like check that the BaseController class provides
-        $this->requireAuth();
+        // $this->requireAuth();
 
         if ($this->postModel->deletePost($id)) {
 
