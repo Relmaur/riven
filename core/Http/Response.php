@@ -17,7 +17,7 @@ class Response
 
         // Set headers
         foreach ($this->headers as $key => $value) {
-            header("${key}: {$value}");
+            header("{$key}: {$value}");
         }
 
         // Echo content

@@ -5,6 +5,8 @@ namespace Core;
 use Core\Route;
 use Core\View;
 use Core\Http\Request;
+use Core\Http\Response;
+use Closure;
 
 class Router
 {
@@ -41,22 +43,45 @@ class Router
 
                     if (class_exists($controllerName) && method_exists($controllerName, $methodName)) {
 
-                        $controllerInstance = $this->container->resolve($controllerName);
+                        // Run through middleware pipeline
+                        return $this->runThroughMiddleware(
+                            $route['middleware'] ?? [],
+                            function ($request) use ($controllerName, $methodName, $matches) {
+                                $controllerInstance = $this->container->resolve($controllerName);
 
-                        $response = call_user_func_array(
-                            [$controllerInstance, $methodName],
-                            array_merge([$this->request], $matches)
+                                // Pass the request as the first parameter, followed by route parameters
+                                return call_user_func_array(
+                                    [$controllerInstance, $methodName],
+                                    array_merge([$request], $matches)
+                                );
+                            }
                         );
-                        return $response;
                     }
 
-                    // Handle 404 Not Found
+                    // Controller/method not found - 404
                     return View::render('errors/404', ['pageTitle' => 'Not Found']);
                 }
             }
         }
 
         return View::render('errors/404', ['pageTitle' => 'Not Found']);
+    }
+
+    /**
+     * Run the request through the middleware pipeline
+     * 
+     * @param array $middleware Array of middleware class names
+     * @param Closure $destination The final controller action
+     * @return Response
+     */
+    protected function runThroughMiddleware(array $middleware, Closure $destination)
+    {
+        $pipeline = new Pipeline($this->container);
+
+        return $pipeline
+            ->send($this->request)
+            ->through($middleware)
+            ->then($destination);
     }
 
     private function convertRouteToRegex($uri)
