@@ -16,10 +16,12 @@ Route::get('/', [PagesController::class, 'home']);
 
 // Posts - Public Routes
 Route::get('/posts', [PostsController::class, 'index']);
-Route::get('/posts/{id}', [PostsController::class, 'show']);
 
 // Posts - Protected routes (require authentication)
 Route::get('/posts/create', [PostsController::class, 'create'])->middleware(AuthMiddleware::class);
+
+// This must come after /posts/create so 'create' isn't matched as {id}
+Route::get('/posts/{id}', [PostsController::class, 'show']);
 Route::post('/posts', [PostsController::class, 'store'])->middleware(AuthMiddleware::class);
 Route::get('/posts/{id}/edit', [PostsController::class, 'edit'])->middleware(AuthMiddleware::class);
 Route::post('/posts/{id}', [PostsController::class, 'update'])->middleware(AuthMiddleware::class); // Momentarily we'll use POST to emulate PUT and PATCH

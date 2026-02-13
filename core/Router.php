@@ -15,9 +15,10 @@ class Router
     protected $container;
     protected $request;
 
-    public function __construct(Container $container, Request $request)
+    public function __construct(Container $container, Request $request = null)
     {
         $this->container = $container;
+        // Use provided request or capture from superglobals
         $this->request = $request ?? Request::capture();
     }
 
@@ -51,21 +52,24 @@ class Router
                             function ($request) use ($controllerName, $methodName, $matches) {
                                 $controllerInstance = $this->container->resolve($controllerName);
 
-                                // Pass the request as the first parameter, followed by route parameters
+                                // Use reflection to inject Request where type-hinted
+                                // and route parameters everywhere else
+                                $args = $this->resolveMethodArgs($controllerInstance, $methodName, $request, $matches);
+
                                 return call_user_func_array(
                                     [$controllerInstance, $methodName],
-                                    array_merge([$request], $matches)
+                                    $args
                                 );
                             }
                         );
                     }
-
-                    // Controller/method not found - 404
-                    return View::render('errors/404', ['pageTitle' => 'Not Found']);
                 }
+                // Controller/method not found - 404
+                return View::render('errors/404', ['pageTitle' => 'Not Found']);
             }
         }
 
+        // No route matched - 404
         return View::render('errors/404', ['pageTitle' => 'Not Found']);
     }
 
@@ -84,6 +88,29 @@ class Router
             ->send($this->request)
             ->through($middleware)
             ->then($destination);
+    }
+
+    /**
+     * Resolve method arguments by injecting Request where type-hinted
+     * and filling remaining parameters with route matches.
+     */
+    private function resolveMethodArgs($controller, string $method, Request $request, array $routeParams): array
+    {
+        $reflection = new \ReflectionMethod($controller, $method);
+        $args = [];
+        $routeParams = array_values($routeParams);
+
+        foreach ($reflection->getParameters() as $param) {
+            $type = $param->getType();
+
+            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin() && is_a($request, $type->getName())) {
+                $args[] = $request;
+            } else {
+                $args[] = array_shift($routeParams);
+            }
+        }
+
+        return $args;
     }
 
     private function convertRouteToRegex($uri)

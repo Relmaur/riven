@@ -170,6 +170,22 @@ class Request
     }
 
     /**
+     * Check if this is a JSON request
+     */
+    public function isJson()
+    {
+        return strpos($this->header('Content-Type', ''), 'application/json') !== false;
+    }
+
+    /**
+     * Check if the request method matches
+     */
+    public function isMethod($method)
+    {
+        return $this->method() === strtoupper($method);
+    }
+
+    /**
      * Get the client IP address
      */
     public function ip()
@@ -201,7 +217,16 @@ class Request
     }
 
     /**
-     * GET A HEADER VALUE
+     * Get a header value
+     */
+    public function header($key, $default = null)
+    {
+        $key = strtolower($key);
+        return $this->headers[$key] ?? $default;
+    }
+
+    /**
+     * Get all headers
      */
     public function headers()
     {

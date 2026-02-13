@@ -42,7 +42,7 @@ class Pipeline
      * @param Request $passable
      * @return $this
      */
-    public function send($passable)
+    public function send($passable): self
     {
         $this->passable = $passable;
         return $this;
@@ -54,7 +54,7 @@ class Pipeline
      * @param array $pipes
      * @return $this
      */
-    public function through(array $pipes)
+    public function through(array $pipes): self
     {
         $this->pipes = $pipes;
         return $this;
@@ -66,7 +66,7 @@ class Pipeline
      * @param Closure $destination
      * @return Response
      */
-    public function then(Closure $destination)
+    public function then(Closure $destination): Response
     {
 
         // Build the pipeline from the inside out

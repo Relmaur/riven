@@ -65,7 +65,6 @@ class PostsController extends BaseController
 
         $post = Cache::get($cacheKey);
 
-
         if (!$post) {
             $post = $this->postModel->getPostById($id);
             Cache::put($cacheKey, $post, 10);
