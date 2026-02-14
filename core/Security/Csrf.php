@@ -99,7 +99,7 @@ class Csrf
         $token = self::getToken();
         $fieldName = self::FIELD_NAME;
 
-        return '<input type="hidden" name="' . htmlspecialchars($fieldName) . '" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+        return '<input type="hidden" name="' . e($fieldName) . '" value="' . e($token, ENT_QUOTES, 'UTF-8') . '">';
     }
 
     /**
@@ -111,7 +111,7 @@ class Csrf
     {
         $token = self::getToken();
 
-        return '<meta name="csrf-token" content="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+        return '<meta name="csrf-token" content="' . e($token, ENT_QUOTES, 'UTF-8') . '">';
     }
 
     /**

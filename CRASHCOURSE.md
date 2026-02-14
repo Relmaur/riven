@@ -219,8 +219,8 @@ This renders `app/Views/posts/index.php`, wraps it in `app/Views/layouts/main.ph
 
 <?php foreach ($posts as $post): ?>
     <article>
-        <h2><?= htmlspecialchars($post->title) ?></h2>
-        <p><?= htmlspecialchars($post->excerpt) ?></p>
+        <h2><?= e($post->title) ?></h2>
+        <p><?= e($post->excerpt) ?></p>
         <a href="/posts/<?= $post->id ?>">Read more</a>
     </article>
 <?php endforeach; ?>

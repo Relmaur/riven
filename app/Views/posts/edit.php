@@ -5,17 +5,17 @@
 
     <div>
         <label for="title">Title</label>
-        <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($post->title); ?>" required>
+        <input type="text" id="title" name="title" value="<?php echo e($post->title); ?>" required>
     </div>
     <div>
         <label for="content">Content</label>
-        <textarea name="content" id="content" required rows="10"><?php echo htmlspecialchars($post->content); ?></textarea>
+        <textarea name="content" id="content" required rows="10"><?php echo e($post->content); ?></textarea>
     </div>
     <div style="margin: 15px 0 0 0;">
         <label for="image">Image</label>
         <input type="file" id="image" name="image">
         <?php if ($post->image_path): ?>
-            <img src="<?php echo htmlspecialchars($post->image_path) ?>" alt="<?php echo htmlspecialchars($post->title) ?>">
+            <img src="<?php echo e($post->image_path) ?>" alt="<?php echo e($post->title) ?>">
         <?php endif; ?>
     </div>
     <button type="submit">Update Post</button>

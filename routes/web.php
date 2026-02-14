@@ -181,3 +181,52 @@ Route::get('/old-page', function ($request) {
     return new \Core\Http\RedirectResponse('/new-page');
 });
 */
+
+// In routes/web.php
+Route::get('/test-query-builder', function ($request) {
+    $db = Core\Database::getInstance();
+
+    // var_dump($request);
+
+    echo '<h1>Query Builder Tests</h1>';
+
+    // Test 1: Get all posts
+    echo '<h2>All Posts</h2>';
+    $posts = $db->table('posts')->get();
+    echo '<pre>' . print_r($posts, true) . '</pre>';
+
+    // Test 2: Find by ID
+    echo '<h2>Post ID 1</h2>';
+    $post = $db->table('posts')->find(1);
+    echo '<pre>' . print_r($post, true) . '</pre>';
+
+    // Test 3: Where clause
+    echo '<h2>Posts with WHERE</h2>';
+    $posts = $db->table('posts')
+        ->where('author_id', 1)
+        ->get();
+    echo '<pre>' . print_r($posts, true) . '</pre>';
+
+    // Test 4: Order and limit
+    echo '<h2>Latest 3 Posts</h2>';
+    $posts = $db->table('posts')
+        ->orderBy('created_at', 'desc')
+        ->limit(3)
+        ->get();
+    echo '<pre>' . print_r($posts, true) . '</pre>';
+
+    // Test 5: JOIN
+    echo '<h2>Posts with Author Names (JOIN)</h2>';
+    $posts = $db->table('posts')
+        ->leftJoin('users', 'posts.author_id', '=', 'users.id')
+        ->select(['posts.*', 'users.name as author_name'])
+        ->get();
+    echo '<pre>' . print_r($posts, true) . '</pre>';
+
+    // Test 6: Count
+    echo '<h2>Total Posts</h2>';
+    $count = $db->table('posts')->count();
+    echo '<p>Total: ' . $count . '</p>';
+
+    exit;
+});

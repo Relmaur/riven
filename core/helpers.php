@@ -65,7 +65,7 @@ if (!function_exists('old')) {
 
 if (!function_exists('e')) {
     /**
-     * Escape HTML entities (shorter alias for htmlspecialchars)
+     * Escape HTML entities (shorter alias for e)
      * 
      * @param string $value
      * @return string

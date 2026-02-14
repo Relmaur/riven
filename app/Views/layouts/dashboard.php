@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($pageTitle ?? 'Riven') ?></title>
+    <title><?php echo e($pageTitle ?? 'Riven') ?></title>
     <style>
         body {
             font-family: sans-serif;
@@ -119,11 +119,11 @@
 
         <?php if ($successMessage = Core\Session::getFlash('success')): ?>
 
-            <div class="alert alert-success"><?php echo htmlspecialchars($successMessage) ?></div>
+            <div class="alert alert-success"><?php echo e($successMessage) ?></div>
 
         <?php elseif ($errorMessage = Core\Session::getFlash('error')): ?>
 
-            <div class="alert alert-error"><?php echo htmlspecialchars($errorMessage) ?></div>
+            <div class="alert alert-error"><?php echo e($errorMessage) ?></div>
 
         <?php endif; ?>
 

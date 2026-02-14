@@ -6,6 +6,7 @@ namespace Core;
 
 use PDO;
 use PDOException;
+use Core\Database\QueryBuilder;
 
 class Database
 {
@@ -63,6 +64,25 @@ class Database
         return $this->pdo;
     }
 
+    /**
+     * Start a query builder of a table
+     * 
+     * This is the main entry point for using the query builder.
+     * 
+     * Usage:
+     * $posts = $db->table('posts')
+     *  ->where('status', 'published')
+     *  ->orderBy('created_at', 'desc')
+     *  ->get();
+     * 
+     * @param string $table The table name
+     * @return QueryBuilder
+     */
+    public function table($table)
+    {
+        return new QueryBuilder($this->pdo, $table);
+    }
+
     /*
        ========================
           MARK: Method Chaining
@@ -106,7 +126,7 @@ class Database
         // Bind value to the statement
         $this->stmt->bindValue($param, $value, $type);
 
-        // Returnthe database after the value bindings
+        // Return the database after the value bindings
         return $this;
     }
 

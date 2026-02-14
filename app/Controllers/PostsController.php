@@ -40,7 +40,8 @@ class PostsController extends BaseController
 
         if (!$posts) {
             // If not in cache, get from the database
-            $posts = $this->postModel->getAllPosts();
+            // $posts = $this->postModel->getAllPosts();
+            $posts = $this->postModel->getLatest(2);
 
             // Store the result in the cache for next time (e.g., for 10 minutes)
             Cache::put($cacheKey, $posts, 10);
