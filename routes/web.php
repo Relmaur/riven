@@ -230,3 +230,66 @@ Route::get('/test-query-builder', function ($request) {
 
     exit;
 });
+
+// In routes/web.php
+Route::get('/test-model', function ($request) {
+    echo '<h1>Testing Base Model</h1>';
+
+    // Test 1: Get all posts (static method)
+    echo '<h2>All Posts (Post::all())</h2>';
+    $posts = App\Models\Post::all();
+    echo '<pre>' . print_r($posts, true) . '</pre>';
+
+    // Test 2: Find by ID
+    echo '<h2>Find Post 1 (Post::find(1))</h2>';
+    $post = App\Models\Post::find(1);
+    echo '<pre>' . print_r($post, true) . '</pre>';
+
+    // Test 3: Magic properties
+    echo '<h2>Magic Properties ($post->title)</h2>';
+    $content = $post->content ? substr($post->content, 0, 100) . '...' : 'No content';
+    if ($post) {
+        echo '<p>Title: ' . $post->title . '</p>';
+        echo '<p>Content: ' . $content . '...</p>';
+        echo '<p>Created: ' . $post->created_at . '</p>';
+    }
+
+    // Test 4: Query builder access
+    echo '<h2>Query Builder (Post::where())</h2>';
+    $posts = App\Models\Post::where('author_id', 1)
+        ->orderBy('created_at', 'desc')
+        ->limit(3)
+        ->get();
+    echo '<p>Found ' . count($posts) . ' posts by author 1</p>';
+
+    // Test 5: Create new post
+    echo '<h2>Create New Post (Post::create())</h2>';
+    $newPost = App\Models\Post::create([
+        'title' => 'Test Post from Model',
+        'content' => 'This was created using the ORM!',
+        'author_id' => 1
+    ]);
+    echo '<p>Created post with ID: ' . $newPost->id . '</p>';
+    echo '<p>Created at: ' . $newPost->created_at . '</p>';
+
+    // Test 6: Update the post
+    echo '<h2>Update Post ($post->save())</h2>';
+    $newPost->title = 'Updated Title';
+    $newPost->save();
+    echo '<p>Updated! Only "title" and "updated_at" were sent to database (dirty tracking)</p>';
+
+    // Test 7: Delete the post
+    echo '<h2>Delete Post ($post->delete())</h2>';
+    $newPost->delete();
+    echo '<p>Deleted!</p>';
+
+    // Test 8: Custom methods
+    echo '<h2>Custom Methods (Post::latest())</h2>';
+    $latest = App\Models\Post::latest(5);
+    echo '<p>Latest 5 posts:</p>';
+    foreach ($latest as $p) {
+        echo '<p>- ' . $p->title . '</p>';
+    }
+
+    exit;
+});

@@ -18,7 +18,7 @@ use Core\Database;
  * 
  * Example:
  * class Post extends Model {
- *  protected $tbale = 'posts';
+ *  protected $table = 'posts';
  *  protected $fillable = ['title', 'content', 'author_id']; 
  * }
  * 
@@ -291,8 +291,8 @@ abstract class Model
                 $this->setAttribute('created_at', $now);
                 $this->setAttribute('updated_at', $now);
             } else {
-                // Updating - only set update_at
-                $this->setAttribute('update_at', $now);
+                // Updating - only set updated_at
+                $this->setAttribute('updated_at', $now);
             }
         }
 
@@ -371,7 +371,7 @@ abstract class Model
             throw new \Exception('Cannot delete a model that does not exists in the database.');
         }
 
-        self::$db->tbale($this->table)
+        self::$db->table($this->table)
             ->where($this->primaryKey, $this->attributes[$this->primaryKey])
             ->delete();
 

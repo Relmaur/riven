@@ -2,46 +2,118 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace APp\Models;
 
-use Core\Database;
+use Core\Model;
 
-class User
+/**
+ * User Model
+ * 
+ * Represents a user account in the database.
+ */
+class User extends Model
 {
-    private $db;
 
-    public function __construct()
+    /**
+     * The database table name
+     */
+    protected $table = 'users';
+
+    /**
+     * Columns that can be mass-assigned
+     */
+    protected $fillable = [
+        'name',
+        'email'
+    ];
+
+    /**
+     * Enable automatic timestamps
+     */
+    protected $timestamps = true;
+
+    /**
+     * ===============
+     * CUSTOM MOETHODS
+     * ===============
+     */
+
+    /**
+     * Find a user by email address
+     * 
+     * @param string $email
+     * @return static|null
+     */
+    public static function findByEmail($email)
     {
-        $this->db = Database::getInstance();
+        return static::where('email', $email)->first();
     }
 
     /**
-     * Find a user by their email address
+     * Create a new user with hashed password
+     * 
+     * Convenience method that handles password hashing automatically.
+     * 
+     * Usage:
+     * User::register([
+     *  'name' => 'John Doe',
+     *  'email' => 'john@example.com',
+     *  'password' => 'secret123'
+     * ]);
+     * 
+     * @param array $data Must include 'password' key
+     * @return static
      */
-    public function findByEmail($email)
+    public static function register(array $data)
     {
-        $this->db->query("SELECT * FROM users WHERE email = :email");
-        $this->db->bind(':email', $email);
-        return $this->db->fetch();
-    }
-
-    /**
-     * Register a new user
-     */
-    public function register($data)
-    {
-        $this->db->query("INSERT INTO users (name, email, password) VALUES (:name, :email, :password)");
-
-        // Bind values
-        $this->db->bind(':name', $data['name']);
-        $this->db->bind(':email', $data['email']);
-        $this->db->bind(':password', $data['password']);
-
-        // Execute
-        if ($this->db->execute()) {
-            return true;
-        } else {
-            return false;
+        // Hash the password
+        if (isset($data['password'])) {
+            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
+
+        return static::create($data);
+    }
+
+    /**
+     * Verify a user's password
+     * 
+     * Usage:
+     * $user = User::findByEmail($email);
+     * if($user && $user->verifyPassword($password)) {
+     *  // Login success
+     * }
+     * 
+     * @param string $password
+     * @return bool
+     */
+    public function verifyPassword($password)
+    {
+        return password_verify($password, $this->password);
+    }
+
+    /**
+     * Get all posts by this user
+     * 
+     * This demonstrates a relationship method.
+     * 
+     * @return array
+     */
+    public function posts()
+    {
+        return Post::where('author_id', $this->id)->get();
+    }
+
+    /**
+     * Update the user's password
+     * 
+     * Handles password hashing automatically.
+     * 
+     * @param string $newPassword
+     * @return bool
+     */
+    public function updatePassword($newPassword)
+    {
+        $this->password = password_hash($newPassword, PASSWORD_DEFAULT);
+        return $this->save();
     }
 }

@@ -7,42 +7,29 @@ namespace App\Controllers;
 use Core\View;
 use Core\Session;
 use Core\Validator;
-use App\Models\User;
-use Core\Http\Request;
 use Core\Security\Csrf;
-
-use Core\EventDispatcher;
-use App\Events\UserRegistered;
+use Core\Http\Request;
 use Core\Http\RedirectResponse;
-use App\Controllers\BaseController;
+use App\Models\User;
+use PgSql\Lob;
 
 class UsersController extends BaseController
 {
-    private $userModel;
-    private $dispatcher;
-
-    // Inject the dispatcher via the constructor
-    public function __construct(User $userModel, EventDispatcher $dispatcher)
+    /**
+     * Show registration form
+     */
+    public function register(Request $request)
     {
-        $this->userModel = $userModel;
-        $this->dispatcher = $dispatcher;
-    }
-
-    // Registration
-    // users/register
-    public function register()
-    {
-        $pageTitle = 'Riven | Register';
-
         return View::render('users/register', [
-            'pageTitle' => $pageTitle
+            'pageTitle' => 'Register'
         ]);
     }
 
-    // for form action: /users/store
+    /**
+     * 
+     */
     public function store(Request $request)
     {
-
         $validator = new Validator($request->all());
 
         $validator->validate([
@@ -51,92 +38,74 @@ class UsersController extends BaseController
             'password' => ['required', 'min:8']
         ]);
 
-        if ($this->userModel->findByEmail($request->input('email'))) {
-            $validator->addError('email', 'This email address is already taken');
+        // Check if email exitst
+        if (User::findByEmail($request->input('email'))) {
+            $validator->addError('email', 'This email address is already taken.');
         }
 
         if ($validator->fails()) {
-            // If validation fails, redirect back with errors
             Session::flash('errors', $validator->getErrors());
-            Session::flash('old_input', $request->all()); // Send back the old input to re-populate the form
-            return new RedirectResponse('/register');
+            Session::flash('old_input', $request->all());
+            return new RedirectResponse(route('register'));
         }
 
-        $data = [
-            'name' => trim($request->input('name')),
-            'email' => trim($request->input('email')),
-            'password' => password_hash($request->input('password'), PASSWORD_DEFAULT) // Hash the password
-        ];
+        // BEFORE Manual INSERT with password hashing
+        // AFTER: One clean method call!
+        User::register([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => $request->input('password')
+        ]);
 
-        if ($this->userModel->register($data)) {
+        Session::flash('success', 'Account created successfully! Please login');
 
-            // Get the newly created user data (we need the ID)
-            $newUser = $this->userModel->findByEmail($data['email']);
-
-            // Dispatch the event!
-            $this->dispatcher->dispatch(new UserRegistered($newUser));
-
-            Session::flash('success', 'Thank you for registering!');
-
-            // Redirect to login page after successful registration
-            return new RedirectResponse('/login');
-        }
+        return new RedirectResponse(route('login'));
     }
 
-    // Login
-    // users/login
-    public function login()
+    public function login(Request $request)
     {
-        $pageTitle = 'Riven | Login';
-
         return View::render('users/login', [
-            'pageTitle' => $pageTitle
+            'pageTitle' => 'Login'
         ]);
     }
 
-    // for form action: /users/authenticate
     public function authenticate(Request $request)
     {
-
         $validator = new Validator($request->all());
 
         $validator->validate([
             'email' => ['required', 'email'],
+            'password' => ['required']
         ]);
 
         if ($validator->fails()) {
             Session::flash('errors', $validator->getErrors());
             Session::flash('old_input', $request->all());
-            return new RedirectResponse('/login');
+            return new RedirectResponse(route('login'));
         }
 
-        $email = $request->input('email');
-        $password = $request->input('password');
+        $user = User::findByEmail($request->input('email'));
 
-        $user = $this->userModel->findByEmail($email);
-
-        if ($user && password_verify($password, $user->password)) {
-            // Password is correct, set session
+        // BEFORE: Manual password_verify
+        // AFTER: Clean method on the User model!
+        if ($user && $user->verifyPassword($request->input('password'))) {
             Session::set('user_id', $user->id);
             Session::set('user_name', $user->name);
 
             Csrf::regenerateToken();
 
             Session::flash('success', 'Welcome Back, ' . $user->name . '!');
-
-            // Redirect to homepage or dashboard
-            return new RedirectResponse('/dashboard');
+            return new RedirectResponse(route('dashboard'));
         } else {
             Session::flash('error', 'Invalid Credentials');
-            return new RedirectResponse('/login');
+            return new RedirectResponse(route('login'));
         }
     }
 
-    // Logout
-    // users/logout
-    public function logout()
+    public function logout(Request $request)
     {
         Session::destroy();
-        return new RedirectResponse('/login');
+        Session::flash('sucecess', 'You have been logged out.');
+        return new RedirectResponse(route('home'));
     }
 }
