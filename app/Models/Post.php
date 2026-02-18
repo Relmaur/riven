@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Core\Http\RedirectResponse;
 use Core\Http\Request;
 use Core\Model;
 use Core\Session;
@@ -38,7 +39,7 @@ class Post extends Model
      * COlumns that can be mass-assigned
      * 
      * This protects agains mass asignment vulnerabilities.
-     * Only these columns can be set via Posts::create() or $post->gfill()
+     * Only these columns can be set via Posts::create() or $post->fill()
      * 
      * Example attack without $fillable:
      * Post::create($_POST) // User could inject is_admin = 1!
@@ -94,7 +95,7 @@ class Post extends Model
     {
         return self::$db->table('posts')
             ->leftJoin('users', 'posts.author_id', '=', 'users.id')
-            ->select('posts.*', 'users.name as author_name')
+            ->select(['posts.*', 'users.name as author_name'])
             ->where('posts.id', $id)
             ->first();
     }
@@ -166,5 +167,37 @@ class Post extends Model
             'content' => $content,
             'author_id' => $author_id
         ]);
+    }
+
+    /**
+     * Save Image
+     */
+    public static function saveImage(Request $request, self $post)
+    {
+        $image = $request->file('image');
+
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!in_array($image['type'], $allowedTypes)) {
+            Session::flash('error', 'Invalid file type. Please upload a JPG, PNG, or GIF.');
+            return new RedirectResponse(route('posts.edit', ['id' => $post->id]));
+        }
+
+        if ($image['size'] > 2000000) {
+            Session::flash('error', 'File is too large. Maximum size is 2MB.');
+            return new RedirectResponse(route('posts.edit', ['id' => $post->id]));
+        }
+
+        $name = pathinfo($image['name'], PATHINFO_FILENAME);
+        $extension = pathinfo($image['name'], PATHINFO_EXTENSION);
+        $safeName = preg_replace('/[^A-Za-z0-9_-]/', '', $name);
+        $uniqueName = $safeName . '_' . time() . '.' . $extension;
+
+        $uploadDir = __DIR__ . '/../../public/uploads/';
+        if (!move_uploaded_file($image['tmp_name'], $uploadDir . $uniqueName)) {
+            Session::flash('error', 'Failed to upload image.');
+            return new RedirectResponse(route('posts.edit', ['id' => $post->id]));
+        }
+
+        $post->image_path = '/uploads/' . $uniqueName;
     }
 }

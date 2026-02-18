@@ -164,13 +164,7 @@ abstract class Model
     public static function find($id)
     {
         $model = new static();
-        $result = self::query()->where($model->primaryKey, $id);
-
-        if (!$result) {
-            return null;
-        }
-
-        return self::hydrateOne($result);
+        return self::query()->where($model->primaryKey, $id)->first();
     }
 
     /**

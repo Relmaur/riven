@@ -65,4 +65,61 @@ class PostsController extends BaseController
         Session::flash('success', 'Post created successfully!');
         return new RedirectResponse(route('posts.index'));
     }
+
+    /**
+     * SHow edit form for a post
+     */
+    public function edit(Request $request, string $id)
+    {
+        $post = Post::findWithAuthor($id);
+
+        return View::render('posts/edit', [
+            'pageTitle' => 'Edit Post',
+            'post' => $post
+        ]);
+    }
+
+    /**
+     * Update a post
+     */
+    public function update(Request $request, string $id)
+    {
+        $post = Post::find($id);
+
+        $post->fill([
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+        ]);
+
+        if ($request->hasFile('image')) {
+            Post::saveImage($request, $post);
+        }
+
+        $post->save();
+
+        // Check if the post was saved successfully
+        if (!$post->id) {
+            Session::flash('error', 'Failed to update post. Please try again.');
+            return new RedirectResponse(route('posts.edit', ['id' => $id]));
+        } else {
+            Session::flash('success', 'Post updated successfully!');
+        }
+
+        return new RedirectResponse(route('posts.show', ['id' => $post->id]));
+    }
+
+    /**
+     * Delete a post
+     */
+    public function destroy(Request $request, string $id)
+    {
+        $post = Post::find($id);
+        if ($post) {
+            $post->delete();
+            Session::flash('success', 'Post deleted successfully!');
+        } else {
+            Session::flash('error', 'Post not found.');
+        }
+        return new RedirectResponse(route('posts.index'));
+    }
 }
